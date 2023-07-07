@@ -18,13 +18,12 @@
 
         <div class="row">
             <div class="col-lg-5 col-lg-offset-3">
-
-                <form action="" method="POST">
+                <form action="/admin/medicine/create" method="POST">
                     <div class="form-group">
                         <label for="med_name">Medicine Name</label>
                         <input type="text" class="form-control" id="medicine_name" name="medicine_name"
-                               placeholder="Medicine Name">
-                </div>
+                               placeholder="Medicine Name" />
+                        </div>
 
                 <div class="form-group">
                     <label for="category">Category</label>
@@ -55,7 +54,18 @@
                         <% }) %>
                         </select>
                     </div>
-                    <input type="submit" class="btn btn-primary" name="submit" value="Create">
+
+                    <div class="form-group">
+                        <label for="row_name">Rows</label>
+                        <input type="number" class="form-control" name="row_name" id="row_name"
+                               placeholder="Rows" min="0" max="99" />
+                    </div>
+                    <div class="form-group">
+                        <label for="column_name">Column</label>
+                        <input type="number" class="form-control" name="column_name" id="column_name"
+                               placeholder="Column" min="0" max="99" />
+                    </div>
+                    <input type="submit" class="btn btn-primary" name="submit" value="Create" />
             </form>
 
             <% include inc/alert_msg.ejs %>

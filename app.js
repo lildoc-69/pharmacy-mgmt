@@ -124,7 +124,6 @@ app.post('/', function (req, res) {
 
 
 app.get('/admin', function (req, res) {
-
   if (!req.session.loggedUser) {
     res.redirect('/');
     return;
@@ -176,20 +175,23 @@ async.parallel([
         connection.query(totalManufac, callback)
     }
 ], function (err, rows) {
+  let sellsCount = 0;
+  let todaySellCount = 0;
+    rows.forEach(function(row){
+      row[0][0].sells_count != undefined ?
+        sellsCount = row[0][0].sells_count : 0
 
-
-    // console.log(rows[0][0]);
-    // console.log(rows[1][0]);
-    // console.log(rows[2][0]);
-
+      row[1][0].sells_count_today != undefined ?
+        todaySellCount = row[1][0].sells_count_today : 0
+    })
 
     // those data needs to be shown on view_admin.ejs
     // Dashboard page requires those data
     // NOT WORKING PROPERLY
 
     res.render('view_admin', {
-        'totalSell': rows[0][0],
-        'todaySell': rows[1][0],
+        'totalSell': sellsCount,
+        'todaySell': todaySellCount,
         'totalUser': rows[2][0],
         'totalBatch': rows[3][0],
         'totalMedicine': rows[4][0],
@@ -210,7 +212,7 @@ async.parallel([
 // routes
 app.use('/admin', admin);
 
-const port = 5500;
+const port = 7000;
 //start the server
 app.listen(port, function () {
   console.log(`server started at port ${port}`);

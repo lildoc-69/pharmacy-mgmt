@@ -66,6 +66,13 @@ CREATE TABLE `bill_information` (
   `Date` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+CREATE TABLE `shelves` (
+  `id` int(11) NOT NULL,
+  `row` int(99),
+  `column` int(99)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 --
 -- Dumping data for table `bill_information`
 --

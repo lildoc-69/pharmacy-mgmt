@@ -865,7 +865,6 @@ router.get('/medicine', function (req, res) {
 });
 
 router.get('/medicine/create', function (req, res) {
-
     //staff checking
     check_staff(req, res);
 
@@ -903,69 +902,109 @@ router.get('/medicine/create', function (req, res) {
     });
 
 });
-
 router.post('/medicine/create', function (req, res) {
+    //staff checking
     check_staff(req, res);
+    //validations
     req.checkBody('medicine_name', 'Medicine Name is required').notEmpty();
     req.checkBody('category', 'Category is required').notEmpty();
     req.checkBody('generic_name', 'Generic Name is required').notEmpty();
     req.checkBody('manufacturer_name', 'Manufacturer Name is required').notEmpty();
+    req.checkBody('row_name', 'Manufacturer Name is required').notEmpty();
+    req.checkBody('column_name', 'Manufacturer Name is required').notEmpty();
 
-    req.getValidationResult().then(function (result) {
-        console.log("Result is below...................");
-        console.log(result.array());
-        if (!result.isEmpty()) {
-            console.log("Adding data into database.., everything is fine here!!!")
-            var connection = mysql.createConnection({
-                host: 'localhost',
-                user: 'root',
-                password: '1234',
-                database: 'pharmacy'
-            });
+    var connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: '1234',
+        database: 'pharmacy'
+    });
 
-            var generic = "SELECT * FROM drug_generic_name";
-            var manufacturer = "SELECT * FROM manufacturer";
-            var category = "SELECT * FROM category";
-            async.parallel([
-                function (callback) {
-                    connection.query(generic, callback)
-                },
-                function (callback) {
-                    connection.query(manufacturer, callback)
-                },
-                function (callback) {
-                    connection.query(category, callback)
-                }
-            ], function (err, rows) {
-                res.render('medicine_create', {
-                    genericname: rows[0][0],
-                    manufacturername: rows[1][0],
-                    categoryname: rows[2][0],
-                    user: req.session.loggedUser,
-                    message: '',
-                    message_type: '',
-                    errors: result.array()
-                });
-            });
+    var generic = "SELECT * FROM drug_generic_name";
+    var manufacturer = "SELECT * FROM manufacturer";
+    var category = "SELECT * FROM category";
 
-        } else {
-            console.log("Unable to add data into database, idk why..")
+    async.parallel([
+        function (callback) {
+            connection.query(generic, callback)
+        },
+        function (callback) {
+            connection.query(manufacturer, callback)
+        },
+        function (callback) {
+            connection.query(category, callback)
+        }
+    ], function (err, rows) {
+        req.getValidationResult().then(function (result) {
+
             var medicine = {
                 Medicine_Name: req.body.medicine_name,
                 Category_ID: req.body.category,
                 Generic_ID: req.body.generic_name,
-                Manufacturer_ID: req.body.manufacturer_name
-            };
-            console.log(medicine);
+                Manufacturer_ID: req.body.manufacturer_name,
+                horizontal: req.body.row_name,
+                vertical: req.body.column_name
+            };  
+
+            console.log("OOOOOOOOOOOOOOOOOOOO")
+            console.log(medicine)
             var query = "INSERT INTO medicine_information SET ?";
-            db.getData(query, [medicine], function (rows) {
-                console.log(rows);
-                res.redirect('/admin/medicine');
-            });
-        }
+            db.getData(query, [medicine], function(docs, err){
+                console.log(err)
+            })
+        });
     });
 });
 
+
+ // if (!result.isEmpty()) {
+        //     var connection = mysql.createConnection({
+        //         host: 'localhost',
+        //         user: 'root',
+        //         password: '1234',
+        //         database: 'pharmacy'
+        //     });
+
+        //     var generic = "SELECT * FROM drug_generic_name";
+        //     var manufacturer = "SELECT * FROM manufacturer";
+        //     var category = "SELECT * FROM category";
+        //     async.parallel([
+        //         function (callback) {
+        //             connection.query(generic, callback)
+        //         },
+        //         function (callback) {
+        //             connection.query(manufacturer, callback)
+        //         },
+        //         function (callback) {
+        //             connection.query(category, callback)
+        //         }
+        //     ], function (err, rows) {
+        //         res.render('medicine_create', {
+        //             genericname: rows[0][0],
+        //             manufacturername: rows[1][0],
+        //             categoryname: rows[2][0],
+        //             user: req.session.loggedUser,
+        //             message: '',
+        //             message_type: '',
+        //             errors: result.array()
+        //         });
+        //     });
+
+        // } else {
+        //     var medicine = {
+        //         Medicine_Name: req.body.medicine_name,
+        //         Category_ID: req.body.category,
+        //         Generic_ID: req.body.generic_name,
+        //         Manufacturer_ID: req.body.manufacturer_name
+        //     };
+        //     console.log(medicine);
+        //     var query = "INSERT INTO medicine_information SET ?";
+        //     db.getData(query, [medicine], function (rows) {
+        //         console.log(rows);
+        //         res.redirect('/admin/medicine');
+        //     });
+
+        // }
 
 
 router.get('/medicine/edit/:id', function (req, res) {
@@ -1134,7 +1173,6 @@ router.get('/usermanagement', function (req, res) {
 });
 
 router.get('/usermanagement/create', function (req, res) {
-
     //staff checking
     check_staff(req, res);
 
@@ -1145,10 +1183,8 @@ router.get('/usermanagement/create', function (req, res) {
 });
 
 router.post('/usermanagement/create', function (req, res) {
-
     //staff checking
     check_staff(req, res);
-
     var user_infromation = {
         Name: req.body.name,
         Email: req.body.email,
