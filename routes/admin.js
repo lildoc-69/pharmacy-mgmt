@@ -111,7 +111,7 @@ router.get('/', function (req, res) {
 
 
 router.get('/medicineSearch/:n', function (req, res) {
-
+    console.log("XXXXXXXXXXXXXXXXXX")
     var name = req.params.n;
     console.log(name);
     var query = "SELECT * FROM medicine_information WHERE Medicine_Name = ? ";
@@ -737,7 +737,6 @@ router.get('/manufacturer/create', function (req, res) {
 
 
 router.post('/manufacturer/create', function (req, res) {
-
     //staff checking
     check_staff(req, res);
 
@@ -921,7 +920,7 @@ router.post('/medicine/create', function (req, res) {
         "xxxx",
         req.body.category,
         req.body.generic_name,
-        req.body.manufacturer_name,
+        1,
         req.body.row_name,
         req.body.column_name
     ];
@@ -933,7 +932,7 @@ router.post('/medicine/create', function (req, res) {
             res.redirect('/admin/medicine/create');
         } else {
             console.log('Medicine inserted successfully:', result);
-            res.redirect('/admin/medicine/create');
+            res.redirect('/admin/medicine');
         }
     });
 });
@@ -1048,7 +1047,6 @@ router.get('/medicine/delid=:id', function (req, res) {
 
 
 router.get('/usermanagement', function (req, res) {
-
     //staff checking
     check_staff(req, res);
 
@@ -1066,8 +1064,22 @@ router.get('/usermanagement/create', function (req, res) {
     //staff checking
     check_staff(req, res);
 
+    function generateCurrentDate(){
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+
+        const formattedDate = `${year}-${month}-${day}`;
+
+        return formattedDate;
+      }
+
     var data = {
-        'user': req.session.loggedUser
+        'user': req.session.loggedUser,
+        'errorMsg': '',
+        'date_now': generateCurrentDate()
     }
     res.render('user_management_create', data);
 });
@@ -1079,7 +1091,7 @@ router.post('/usermanagement/create', function (req, res) {
         Name: req.body.name,
         Email: req.body.email,
         Gender: req.body.gender,
-        Date_of_Birth: req.body.user_dob,
+        Date_of_Birth: "2000-03-02",
         Age: req.body.age,
         Address: req.body.address,
         Contact: req.body.contact,
@@ -1094,16 +1106,44 @@ router.post('/usermanagement/create', function (req, res) {
         Password: req.body.password,
         Usertype: req.body.usertype,
     };
-    console.log(user_infromation);
-    console.log(user_access);
+
+    var space_pattern = /\s/;
+    if(space_pattern.test(user_access.Password) && user_access.Password.length <= 6){
+        var data = {
+            'user': req.session.loggedUser,
+            'errorMsg': 'Password pattern is invalid'
+        }
+        console.log("Password incomplete....")
+        res.render("user_management_create", data)
+    } 
+
+    let userData = []
     var userAccessQuery = "INSERT INTO User_Access SET ?";
     var userInfoQuery = "INSERT INTO User_Information SET ?";
+    var query = "SELECT A.Name,A.Email,A.Gender,A.Date_of_Birth,A.Age,A.Address,A.Contact,A.Blood_Group,A.Marital_Status,A.Join_Date,A.Salary,A.Username,B.Password,B.Usertype FROM user_information A INNER JOIN user_access B ON A.Username=B.Username;";
 
-    db.getData(userAccessQuery, [user_access], function (rows) {
-        db.getData(userInfoQuery, [user_infromation], function (err, rows) {
-            res.redirect('/admin/usermanagement');
-        });
+    db.getData(query, null, function(rows){
+        userData = rows
+    })
+
+    var connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: '1234',
+        database: 'pharmacy'
     });
+
+    connection.query(userAccessQuery, user_access, function(err, docs){
+        connection.query(userInfoQuery, user_infromation, function(error, doc) {
+            setTimeout(() => {
+                res.render('user_management_index', {
+                    'user': req.session.loggedUser,
+                    'errorMsg': '',
+                    'userInformation': userData
+                })
+            }, 1000)
+        })
+    })
 });
 
 router.get('/usermanagement/edit/:id', function (req, res) {

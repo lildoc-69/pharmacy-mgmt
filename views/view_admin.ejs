@@ -19,81 +19,77 @@
                     <section>
                         <ul class="dashborad-list">
                             <li>
-                                <img src="/assets/images/cash.ico" alt="todaysell">
+                                <a href="/admin/saleshistory">
+                                    <img src="/assets/images/cash.ico" alt="todaysell">
                                 <h3>Today Sell</h3>
                                 &#8360;
                                 <%= todaySell %>
+                                </a>
                             </li>
                             <li>
-                                <img src="/assets/images/today-sell.png" alt="totalsell">
-                                <h3>Total Sell</h3>
-                                &#8360;
+                                <a href="/admin/saleshistory">
+                                    <img src="/assets/images/today-sell.png" alt="totalsell">
+                                    <h3>Total Sell</h3>
+                                        &#8360;
                                     <%= totalSell %>
-                                
+                                </a>
+
                             </li>
                             <li>
+                                <a href="/admin/usermanagement">
                                 <img src="/assets/images/user.ico" alt="user">
                                 <h3>Users</h3>
-                                <p>
+                                
                                     <% totalUser.forEach(function(item){ %>
                                         <%= item.users_count %> 
                                    <% }) %>
-                                </p>
+                                
+                                </a>
                             </li>
                             
                             <li>
-                                <img src="/assets/images/batch.png" alt="batch">
-                                <h3>Batch Products</h3>
-                                <p>
-                                    <% totalBatch.forEach(function(item){ %>
-                                        <%= item.batch_count %> 
-                                   <% }) %>
-                                </p>
-                            </li>
-                            <li>
-                                <img src="/assets/images/medicine.png" alt="medicine">
+                                <a href="/admin/medicine">
+                                    <img src="/assets/images/medicine.png" alt="medicine">
                                 <h3>Total Medicines</h3>
-                                <p>
+                                
                                     <% totalMedicine.forEach(function(item){ %>
                                         <%= item.med_count %> 
                                    <% }) %>
-                                </p>
+                                
+                                </a>
                             </li>
                             <li>
-                                <img src="/assets/images/supplier.png" alt="supplier">
+                                <a href="/admin/supplier">
+                                    <img src="/assets/images/supplier.png" alt="supplier">
                                 <h3>Total Suppliers</h3>
-                                <p>
+                                
                                     <% totalSupplier.forEach(function(item){ %>
                                         <%= item.sup_count %> 
                                    <% }) %>
-                                </p>
+                                
+                                </a>
                             </li>
                             <li>
-                                <img src="/assets/images/category.png" alt="category">
+                                <a href="/admin/category">
+                                    <img src="/assets/images/category.png" alt="category">
                                 <h3>Total Categories</h3>
-                                <p>
+                                
                                     <% totalCategory.forEach(function(item){ %>
                                         <%= item.cat_count %> 
                                    <% }) %>
-                                </p>
+                                
+                                </a>
                             </li>
                             <li>
-                                <img src="/assets/images/generic.png" alt="generic">
+                                <a href="/admin/genericname">
+                                    <img src="/assets/images/generic.png" alt="generic">
                                 <h3>Generic Items</h3>
-                                <p>
+                                
                                     <% totalGeneric.forEach(function(item){ %>
                                         <%= item.generic_count %> 
                                    <% }) %>
-                                </p>
-                            </li>
-                            <li>
-                                <img src="/assets/images/manufacture.png" alt="manfacturer">
-                                <h3>Manufacturers</h3>
-                                <p>
-                                    <% totalManufac.forEach(function(item){ %>
-                                        <%= item.manufac_count %> 
-                                   <% }) %>
-                                </p>
+                                
+                                </a>
                             </li>
                         </ul>
                     </section>
