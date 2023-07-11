@@ -35,7 +35,9 @@
                         <th>Medicine Name</th>
                         <th>Category</th>
                         <th>Generic Name</th>
-                        <th>Manufacturer Name</th>
+                        <!-- <th>Manufacturer Name</th> -->
+                        <th> Row </th>
+                        <th> Column </th>
                         <th>Action</th>
                     </tr>
                     </thead>
@@ -45,7 +47,9 @@
                         <td><%= item.Medicine_Name %></td>
                         <td><%= item.Category %></td>
                         <td><%= item.Generic_Name %></td>
-                        <td><%= item.Manufacturer_Name %></td>
+                        <!-- <td><%= item.Manufacturer_Name %></td> -->
+                        <td> <%= item.horizontal %> </td>
+                        <td> <%= item.vertical %> </td>
                         <td><a href="/admin/medicine/edit/<%= item.ID %>">Edit |</a>
                           <a href="/admin/medicine/delid=<%= item.ID %>" onclick="return confirm('Are You Sure to Delete?')">Delete</a></td>
                     </tr>

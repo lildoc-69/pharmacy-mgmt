@@ -850,10 +850,7 @@ router.get('/manufacturer/delid=:id', function (req, res) {
 
 
 router.get('/medicine', function (req, res) {
-
-    //staff checking
     check_staff(req, res);
-
     var query = "SELECT m.*, g.Generic_Name, z.Manufacturer_Name, p.Category FROM medicine_information m INNER JOIN drug_generic_name g on m.Generic_ID = g.ID INNER JOIN manufacturer z on m.Manufacturer_ID = z.ID INNER JOIN category p on m.Category_ID = p.ID";
     db.getData(query, null, function (rows) {
         var data = {
@@ -889,7 +886,6 @@ router.get('/medicine/create', function (req, res) {
             connection.query(category, callback)
         }
     ], function (err, rows) {
-        //console.log(RowDataPacket);
         res.render('medicine_create', {
             genericname: rows[0][0],
             manufacturername: rows[1][0],
@@ -902,16 +898,16 @@ router.get('/medicine/create', function (req, res) {
     });
 
 });
+
+
 router.post('/medicine/create', function (req, res) {
-    //staff checking
     check_staff(req, res);
-    //validations
     req.checkBody('medicine_name', 'Medicine Name is required').notEmpty();
     req.checkBody('category', 'Category is required').notEmpty();
     req.checkBody('generic_name', 'Generic Name is required').notEmpty();
     req.checkBody('manufacturer_name', 'Manufacturer Name is required').notEmpty();
-    req.checkBody('row_name', 'Manufacturer Name is required').notEmpty();
-    req.checkBody('column_name', 'Manufacturer Name is required').notEmpty();
+    req.checkBody('row_name', 'Horizontal').notEmpty();
+    req.checkBody('column_name', 'Vertical').notEmpty();
 
     var connection = mysql.createConnection({
         host: 'localhost',
@@ -920,96 +916,29 @@ router.post('/medicine/create', function (req, res) {
         database: 'pharmacy'
     });
 
-    var generic = "SELECT * FROM drug_generic_name";
-    var manufacturer = "SELECT * FROM manufacturer";
-    var category = "SELECT * FROM category";
+    var values = [
+        req.body.medicine_name,
+        "xxxx",
+        req.body.category,
+        req.body.generic_name,
+        req.body.manufacturer_name,
+        req.body.row_name,
+        req.body.column_name
+    ];
 
-    async.parallel([
-        function (callback) {
-            connection.query(generic, callback)
-        },
-        function (callback) {
-            connection.query(manufacturer, callback)
-        },
-        function (callback) {
-            connection.query(category, callback)
+    var insertMedicine = "INSERT INTO medicine_information (Medicine_Name, Category ,Category_ID, Generic_ID, Manufacturer_ID, horizontal, vertical) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    connection.query(insertMedicine, values, function(error, result) {
+        if (error) {
+            console.error('Error inserting medicine:', error);
+            res.redirect('/admin/medicine/create');
+        } else {
+            console.log('Medicine inserted successfully:', result);
+            res.redirect('/admin/medicine/create');
         }
-    ], function (err, rows) {
-        req.getValidationResult().then(function (result) {
-
-            var medicine = {
-                Medicine_Name: req.body.medicine_name,
-                Category_ID: req.body.category,
-                Generic_ID: req.body.generic_name,
-                Manufacturer_ID: req.body.manufacturer_name,
-                horizontal: req.body.row_name,
-                vertical: req.body.column_name
-            };  
-
-            console.log("OOOOOOOOOOOOOOOOOOOO")
-            console.log(medicine)
-            var query = "INSERT INTO medicine_information SET ?";
-            db.getData(query, [medicine], function(docs, err){
-                console.log(err)
-            })
-        });
     });
 });
 
-
- // if (!result.isEmpty()) {
-        //     var connection = mysql.createConnection({
-        //         host: 'localhost',
-        //         user: 'root',
-        //         password: '1234',
-        //         database: 'pharmacy'
-        //     });
-
-        //     var generic = "SELECT * FROM drug_generic_name";
-        //     var manufacturer = "SELECT * FROM manufacturer";
-        //     var category = "SELECT * FROM category";
-        //     async.parallel([
-        //         function (callback) {
-        //             connection.query(generic, callback)
-        //         },
-        //         function (callback) {
-        //             connection.query(manufacturer, callback)
-        //         },
-        //         function (callback) {
-        //             connection.query(category, callback)
-        //         }
-        //     ], function (err, rows) {
-        //         res.render('medicine_create', {
-        //             genericname: rows[0][0],
-        //             manufacturername: rows[1][0],
-        //             categoryname: rows[2][0],
-        //             user: req.session.loggedUser,
-        //             message: '',
-        //             message_type: '',
-        //             errors: result.array()
-        //         });
-        //     });
-
-        // } else {
-        //     var medicine = {
-        //         Medicine_Name: req.body.medicine_name,
-        //         Category_ID: req.body.category,
-        //         Generic_ID: req.body.generic_name,
-        //         Manufacturer_ID: req.body.manufacturer_name
-        //     };
-        //     console.log(medicine);
-        //     var query = "INSERT INTO medicine_information SET ?";
-        //     db.getData(query, [medicine], function (rows) {
-        //         console.log(rows);
-        //         res.redirect('/admin/medicine');
-        //     });
-
-        // }
-
-
 router.get('/medicine/edit/:id', function (req, res) {
-
-    //staff checking
     check_staff(req, res);
 
     var connection = mysql.createConnection({
@@ -1024,6 +953,7 @@ router.get('/medicine/edit/:id', function (req, res) {
     var genricName = "SELECT * FROM drug_generic_name";
     var manufacturerName = "SELECT * FROM manufacturer";
     var categoryName = "SELECT * FROM category";
+    let location;
 
 
     async.parallel([
@@ -1040,16 +970,21 @@ router.get('/medicine/edit/:id', function (req, res) {
             connection.query(categoryName, callback)
         }
     ], function (err, rows) {
-        console.log(rows[0][0]);
-        console.log(rows[1][0]);
-        console.log(rows[2][0]);
-        console.log(rows[3][0]);
+        rows.forEach(function(docs){
+            docs[0][0].vertical != undefined && docs[0][0].horizontal != undefined ?
+                location = docs[0][0] : null
+
+            // docs[0][0].horizontal != undefined ?
+            //     horizontal = docs[0][0] : null
+        })
 
         res.render('medicine_edit', {
             'medInfo': rows[0][0],
             'dGenericName': rows[1][0],
             'manuName': rows[2][0],
             'cateName': rows[3][0],
+            'row': location.horizontal,
+            'column': location.vertical,
             user: req.session.loggedUser,
             message: '',
             message_type: '',
@@ -1060,85 +995,40 @@ router.get('/medicine/edit/:id', function (req, res) {
 });
 
 router.post('/medicine/edit/:id', function (req, res) {
-
-    //staff checking
     check_staff(req, res);
-
-
-    //validations
     req.checkBody('medicine_name', 'Medicine Name is required').notEmpty();
     req.checkBody('categoryname', 'Category is required').notEmpty();
     req.checkBody('genericName', 'Generic Name is required').notEmpty();
     req.checkBody('manuName', 'Manufacturer Name is required').notEmpty();
+    req.checkBody('row_name', 'Horizontal').notEmpty();
+    req.checkBody('column_name', 'Vertical').notEmpty();
 
-    req.getValidationResult().then(function (result) {
-
-        if (!result.isEmpty()) {
-
-            var connection = mysql.createConnection({
-                host: 'localhost',
-                user: 'root',
-                password: '1234',
-                database: 'pharmacy'
-            });
-
-            var id = req.params.id;
-            var query = "SELECT * FROM medicine_information WHERE ID = ? ";
-            var genricName = "SELECT * FROM drug_generic_name";
-            var manufacturerName = "SELECT * FROM manufacturer";
-            var categoryName = "SELECT * FROM category";
-
-
-            async.parallel([
-                function (callback) {
-                    connection.query(query, [id], callback)
-                },
-                function (callback) {
-                    connection.query(genricName, callback)
-                },
-                function (callback) {
-                    connection.query(manufacturerName, callback)
-                },
-                function (callback) {
-                    connection.query(categoryName, callback)
-                }
-            ], function (err, rows) {
-
-                console.log(rows[0][0]);
-                console.log(rows[1][0]);
-                console.log(rows[2][0]);
-                console.log(rows[3][0]);
-
-                res.render('medicine_edit', {
-                    'medInfo': rows[0][0],
-                    'dGenericName': rows[1][0],
-                    'manuName': rows[2][0],
-                    'cateName': rows[3][0],
-                    user: req.session.loggedUser,
-                    message: '',
-                    message_type: '',
-                    errors: result.array()
-                });
-            });
-
-        } else {
-
-            var id = req.params.id;
-            var medicineUpdate = {
-                Medicine_Name: req.body.medicine_name,
-                Category_ID: req.body.categoryname,
-                Generic_ID: req.body.genericName,
-                Manufacturer_ID: req.body.manuName
-            };
-            var query = "UPDATE medicine_information SET ? WHERE ID = ?";
-            db.getData(query, [medicineUpdate, id], function (rows) {
-                res.redirect('/admin/medicine');
-            });
-        }
-
+    var connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: '1234',
+        database: 'pharmacy'
     });
 
+    var id = req.params.id;
 
+    var values = [
+        req.body.medicine_name,
+        "xxxx",
+        req.body.category,
+        req.body.generic_name,
+        req.body.manufacturer_name,
+        req.body.row_name,
+        req.body.column_name
+    ];
+
+    var query = "UPDATE medicine_information SET ? WHERE ID = ?";
+    connection.query(query, values, function(error, result){
+        console.log(error);
+        console.log(result);
+
+        res.redirect('/admin/medicine');
+    })
 });
 
 

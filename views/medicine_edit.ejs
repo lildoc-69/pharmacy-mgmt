@@ -75,8 +75,21 @@
                     </select>
                 </div>
 
-                <input type="submit" class="btn btn-primary" name="submit" value="Update">
-
+                <div class="form-group">
+                    <label for="row_name">Rows</label>
+                    <input type="number" class="form-control" name="row_name" id="row_name"
+                           placeholder="Rows" min="0" max="99"
+                           value="<%= row %>"
+                           />
+                </div>
+                    <div class="form-group">
+                        <label for="column_name">Column</label>
+                        <input type="number" class="form-control" name="column_name" id="column_name"
+                           placeholder="Column" min="0" max="99"
+                           value="<%= column %>"
+                           />
+                    </div>
+                    <input type="submit" class="btn btn-primary" name="submit" value="Update">
                 </form>
 
 

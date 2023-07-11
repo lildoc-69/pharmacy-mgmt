@@ -212,7 +212,7 @@ async.parallel([
 // routes
 app.use('/admin', admin);
 
-const port = 7000;
+const port = 8000;
 //start the server
 app.listen(port, function () {
   console.log(`server started at port ${port}`);
